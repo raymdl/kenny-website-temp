@@ -1,0 +1,1772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kenneth Lee Komoto — Motion Design</title>
+  <meta name="description" content="Kenneth Lee Komoto — Motion Designer based in Los Angeles, CA. Specializing in 2D & 3D animation and motion graphics." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ============================================================
+       RESET & BASE
+    ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* Lakers palette */
+      --purple:       #552583;
+      --purple-light: #6b2fa0;
+      --purple-dark:  #3a1a5c;
+      --gold:         #FDB927;
+      --gold-dim:     rgba(253, 185, 39, 0.12);
+      --gold-hover:   #ffd166;
+
+      /* Backgrounds */
+      --bg-primary:   #09060f;
+      --bg-secondary: #0f0a1a;
+      --bg-card:      #160f24;
+      --bg-card-hover:#1e1533;
+
+      /* Text */
+      --text-primary: #f4f0ff;
+      --text-muted:   #8878aa;
+      --text-faint:   #3d3055;
+
+      /* Shared */
+      --accent:       var(--gold);
+      --accent-dim:   var(--gold-dim);
+      --border:       rgba(253, 185, 39, 0.1);
+      --border-purple: rgba(85, 37, 131, 0.4);
+      --nav-height:   72px;
+      --transition:   0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --font-head:    'Space Grotesk', sans-serif;
+      --font-body:    'Inter', sans-serif;
+      --radius:       12px;
+      --radius-sm:    8px;
+    }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection { background: var(--gold); color: #000; }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+
+    /* ============================================================
+       SCROLLBAR
+    ============================================================ */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: var(--purple); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--purple-light); }
+
+    /* ============================================================
+       NOISE OVERLAY
+    ============================================================ */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.03; pointer-events: none; z-index: 1000;
+    }
+
+    /* ============================================================
+       NAV
+    ============================================================ */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: var(--nav-height); z-index: 500;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px;
+      transition: background var(--transition), border-color var(--transition);
+      border-bottom: 1px solid transparent;
+    }
+
+    nav.scrolled {
+      background: rgba(9, 6, 15, 0.9);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-color: var(--border-purple);
+    }
+
+    .nav-logo {
+      font-family: var(--font-head);
+      font-size: 1.1rem; font-weight: 600; letter-spacing: -0.02em;
+    }
+    .nav-logo span { color: var(--gold); }
+
+    .nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
+
+    .nav-links a {
+      font-size: 0.875rem; font-weight: 500; color: var(--text-muted);
+      letter-spacing: 0.02em; transition: color var(--transition); position: relative;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: -4px; left: 0;
+      width: 0; height: 1px; background: var(--gold); transition: width var(--transition);
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--text-primary); }
+    .nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
+
+    .nav-cta {
+      padding: 9px 22px; background: var(--gold); color: #000 !important;
+      border-radius: 100px; font-size: 0.8rem !important; font-weight: 700 !important;
+      letter-spacing: 0.03em !important;
+      transition: background var(--transition), transform var(--transition), box-shadow var(--transition) !important;
+    }
+    .nav-cta::after { display: none !important; }
+    .nav-cta:hover {
+      background: var(--gold-hover) !important; transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(253, 185, 39, 0.3);
+    }
+
+    /* Hamburger */
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      cursor: pointer; background: none; border: none; padding: 4px;
+    }
+    .hamburger span {
+      display: block; width: 24px; height: 2px;
+      background: var(--text-primary); border-radius: 2px;
+      transition: transform var(--transition), opacity var(--transition);
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-menu {
+      display: none; position: fixed; inset: 0; z-index: 490;
+      background: rgba(9, 6, 15, 0.97); backdrop-filter: blur(20px);
+      flex-direction: column; align-items: center; justify-content: center;
+      gap: 32px; opacity: 0; pointer-events: none; transition: opacity 0.35s ease;
+    }
+    .mobile-menu.open { opacity: 1; pointer-events: all; }
+    .mobile-menu a {
+      font-family: var(--font-head); font-size: 2rem; font-weight: 600;
+      color: var(--text-muted); transition: color var(--transition), transform var(--transition);
+      transform: translateY(16px);
+    }
+    .mobile-menu.open a { transform: translateY(0); }
+    .mobile-menu a:hover { color: var(--gold); }
+
+    /* ============================================================
+       HERO
+    ============================================================ */
+    #hero {
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; text-align: center;
+      padding: calc(var(--nav-height) + 60px) 24px 80px;
+      position: relative; overflow: hidden;
+    }
+
+    .orb {
+      position: absolute; border-radius: 50%;
+      filter: blur(110px); opacity: 0.22; pointer-events: none;
+      animation: orbFloat 12s ease-in-out infinite;
+    }
+    .orb-1 {
+      width: 620px; height: 620px;
+      background: radial-gradient(circle, #552583 0%, transparent 70%);
+      top: -220px; left: -180px; animation-delay: 0s;
+    }
+    .orb-2 {
+      width: 520px; height: 520px;
+      background: radial-gradient(circle, #FDB927 0%, transparent 70%);
+      bottom: -120px; right: -120px; animation-delay: -6s;
+    }
+    .orb-3 {
+      width: 380px; height: 380px;
+      background: radial-gradient(circle, #6b2fa0 0%, transparent 70%);
+      top: 40%; left: 50%; transform: translate(-50%, -50%); animation-delay: -3s;
+    }
+
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33%       { transform: translate(30px, -40px) scale(1.05); }
+      66%       { transform: translate(-20px, 30px) scale(0.95); }
+    }
+
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(253,185,39,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(253,185,39,0.05) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px; border: 1px solid rgba(253,185,39,0.2);
+      border-radius: 100px; font-size: 0.75rem; color: var(--text-muted);
+      letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 28px;
+      background: rgba(253,185,39,0.05); animation: fadeUp 0.8s ease both;
+    }
+    .hero-badge .dot {
+      width: 6px; height: 6px; background: var(--gold);
+      border-radius: 50%; animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.4; transform: scale(0.7); }
+    }
+
+    .hero-name {
+      font-family: var(--font-head);
+      font-size: clamp(3rem, 8vw, 7rem); font-weight: 700;
+      letter-spacing: -0.04em; line-height: 1; margin-bottom: 16px;
+      animation: fadeUp 0.8s 0.1s ease both;
+    }
+    .hero-name .accent-word { color: var(--gold); display: inline-block; }
+
+    .hero-subtitle {
+      font-size: clamp(1rem, 2.5vw, 1.35rem); color: var(--text-muted);
+      font-weight: 400; margin-bottom: 48px; max-width: 480px;
+      animation: fadeUp 0.8s 0.2s ease both;
+    }
+    .hero-subtitle strong { color: var(--text-primary); font-weight: 500; }
+
+    .hero-actions {
+      display: flex; gap: 16px; flex-wrap: wrap;
+      justify-content: center; animation: fadeUp 0.8s 0.3s ease both;
+    }
+
+    .scroll-indicator {
+      position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      color: var(--text-faint); font-size: 0.7rem; letter-spacing: 0.1em;
+      text-transform: uppercase; animation: fadeUp 1s 0.8s ease both;
+    }
+    .scroll-indicator .mouse {
+      width: 22px; height: 36px; border: 1.5px solid var(--text-faint);
+      border-radius: 11px; display: flex; align-items: flex-start;
+      justify-content: center; padding-top: 6px;
+    }
+    .scroll-indicator .mouse-dot {
+      width: 3px; height: 6px; background: var(--text-faint);
+      border-radius: 3px; animation: scrollBob 1.8s ease-in-out infinite;
+    }
+    @keyframes scrollBob {
+      0%, 100% { transform: translateY(0); opacity: 1; }
+      50%       { transform: translateY(8px); opacity: 0.3; }
+    }
+
+    /* ============================================================
+       BUTTONS
+    ============================================================ */
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 30px; border-radius: 100px;
+      font-family: var(--font-body); font-size: 0.9rem; font-weight: 500;
+      cursor: pointer; border: none; transition: all var(--transition);
+      position: relative; overflow: hidden;
+    }
+    .btn::before {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(255,255,255,0.08); opacity: 0; transition: opacity var(--transition);
+    }
+    .btn:hover::before { opacity: 1; }
+
+    .btn-primary { background: var(--gold); color: #000; font-weight: 700; }
+    .btn-primary:hover {
+      background: var(--gold-hover); transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(253, 185, 39, 0.35);
+    }
+
+    .btn-ghost {
+      background: transparent; color: var(--text-primary);
+      border: 1px solid var(--border-purple);
+    }
+    .btn-ghost:hover { border-color: var(--gold); transform: translateY(-2px); }
+
+    .btn svg {
+      width: 16px; height: 16px; stroke: currentColor; fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0;
+    }
+
+    /* ============================================================
+       SECTIONS
+    ============================================================ */
+    section { padding: 120px 24px; }
+
+    .container { max-width: 1100px; margin: 0 auto; }
+
+    .section-label {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--gold); margin-bottom: 20px;
+    }
+    .section-label::before {
+      content: ''; display: block; width: 28px; height: 1px; background: var(--gold);
+    }
+
+    .section-heading {
+      font-family: var(--font-head);
+      font-size: clamp(2rem, 5vw, 3.25rem); font-weight: 700;
+      letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 20px;
+    }
+
+    .section-desc { font-size: 1.05rem; color: var(--text-muted); max-width: 560px; line-height: 1.7; }
+
+    .reveal {
+      opacity: 0; transform: translateY(32px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ============================================================
+       REEL
+    ============================================================ */
+    #reel { padding-top: 0; padding-bottom: 120px; }
+
+    .reel-wrapper {
+      max-width: 1100px; margin: 0 auto; position: relative;
+      border-radius: 20px; overflow: hidden; background: var(--bg-card);
+      border: 1px solid var(--border-purple);
+      box-shadow: 0 40px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(253,185,39,0.05);
+    }
+
+    .reel-placeholder {
+      aspect-ratio: 16/9; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 24px;
+      background: linear-gradient(135deg, #0f0a1a 0%, #180f2a 100%);
+      cursor: pointer; position: relative; overflow: hidden;
+    }
+    .reel-placeholder::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(85,37,131,0.15) 0%, transparent 70%);
+    }
+
+    .reel-waveform { display: flex; align-items: center; gap: 4px; }
+    .reel-waveform span {
+      display: block; width: 3px; border-radius: 3px;
+      background: var(--gold); animation: wave 1.2s ease-in-out infinite;
+    }
+    .reel-waveform span:nth-child(1)  { height: 16px; animation-delay: 0s; }
+    .reel-waveform span:nth-child(2)  { height: 32px; animation-delay: 0.1s; }
+    .reel-waveform span:nth-child(3)  { height: 48px; animation-delay: 0.2s; }
+    .reel-waveform span:nth-child(4)  { height: 60px; animation-delay: 0.3s; }
+    .reel-waveform span:nth-child(5)  { height: 48px; animation-delay: 0.4s; }
+    .reel-waveform span:nth-child(6)  { height: 36px; animation-delay: 0.5s; }
+    .reel-waveform span:nth-child(7)  { height: 24px; animation-delay: 0.35s; }
+    .reel-waveform span:nth-child(8)  { height: 40px; animation-delay: 0.25s; }
+    .reel-waveform span:nth-child(9)  { height: 56px; animation-delay: 0.15s; }
+    .reel-waveform span:nth-child(10) { height: 28px; animation-delay: 0.05s; }
+
+    @keyframes wave {
+      0%, 100% { transform: scaleY(1); opacity: 0.6; }
+      50%       { transform: scaleY(0.35); opacity: 1; }
+    }
+
+    .play-btn {
+      width: 80px; height: 80px; border-radius: 50%; background: var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: transform var(--transition), box-shadow var(--transition);
+      animation: ripple 2.5s ease-in-out infinite; position: absolute;
+    }
+    .play-btn svg { width: 28px; height: 28px; fill: #000; margin-left: 4px; }
+    .play-btn:hover { transform: scale(1.1); box-shadow: 0 12px 36px rgba(253,185,39,0.5); animation: none; }
+
+    @keyframes ripple {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(253,185,39,0.5); }
+      50%       { box-shadow: 0 0 0 24px rgba(253,185,39,0); }
+    }
+
+    .reel-label {
+      position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
+      font-family: var(--font-head); font-size: 0.75rem; font-weight: 500;
+      color: var(--text-muted); letter-spacing: 0.06em; text-transform: uppercase;
+    }
+
+    /* ============================================================
+       ABOUT
+    ============================================================ */
+    #about {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-purple);
+      border-bottom: 1px solid var(--border-purple);
+    }
+
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+
+    .about-text p { color: var(--text-muted); line-height: 1.8; margin-bottom: 20px; font-size: 1.05rem; }
+    .about-text p strong { color: var(--text-primary); font-weight: 500; }
+
+    .about-stats {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1px; background: var(--border-purple);
+      border-radius: var(--radius); overflow: hidden; margin-top: 40px;
+    }
+    .stat-box { background: var(--bg-card); padding: 28px 24px; transition: background var(--transition); }
+    .stat-box:hover { background: var(--bg-card-hover); }
+    .stat-num {
+      font-family: var(--font-head); font-size: 2.4rem; font-weight: 700;
+      color: var(--gold); letter-spacing: -0.03em; line-height: 1; margin-bottom: 6px;
+    }
+    .stat-label { font-size: 0.8rem; color: var(--text-muted); letter-spacing: 0.04em; }
+
+    .skills-panel h3 {
+      font-family: var(--font-head); font-size: 1rem; font-weight: 600;
+      color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 20px;
+    }
+    .skill-bar-wrap { margin-bottom: 20px; }
+    .skill-bar-header { display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 8px; }
+    .skill-bar-header span:last-child { color: var(--text-muted); }
+    .skill-bar { height: 4px; background: var(--bg-card-hover); border-radius: 4px; overflow: hidden; }
+    .skill-fill {
+      height: 100%; width: 0; border-radius: 4px;
+      background: linear-gradient(90deg, var(--purple), var(--gold));
+      transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .tool-tags { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 36px; }
+    .tag {
+      padding: 7px 16px; border-radius: var(--radius-sm);
+      background: var(--bg-card); border: 1px solid var(--border-purple);
+      font-size: 0.8rem; color: var(--text-muted); transition: all var(--transition); cursor: default;
+    }
+    .tag:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+
+    /* ============================================================
+       SERVICES
+    ============================================================ */
+    .services-header {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      margin-bottom: 60px; flex-wrap: wrap; gap: 24px;
+    }
+
+    .services-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1px; background: var(--border-purple);
+      border-radius: var(--radius); overflow: hidden;
+    }
+
+    .service-card {
+      background: var(--bg-card); padding: 40px 36px;
+      transition: background var(--transition); position: relative; overflow: hidden;
+    }
+    .service-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 2px; background: linear-gradient(90deg, var(--purple), var(--gold));
+      opacity: 0; transition: opacity var(--transition);
+    }
+    .service-card:hover { background: var(--bg-card-hover); }
+    .service-card:hover::before { opacity: 1; }
+
+    .service-icon {
+      width: 48px; height: 48px; border-radius: 12px; background: var(--gold-dim);
+      display: flex; align-items: center; justify-content: center; margin-bottom: 24px;
+      transition: background var(--transition);
+    }
+    .service-card:hover .service-icon { background: rgba(253,185,39,0.2); }
+    .service-icon svg {
+      width: 22px; height: 22px; stroke: var(--gold); fill: none;
+      stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .service-card h3 {
+      font-family: var(--font-head); font-size: 1.15rem; font-weight: 600;
+      margin-bottom: 12px; letter-spacing: -0.02em;
+    }
+    .service-card p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.7; }
+
+    /* ============================================================
+       PROCESS
+    ============================================================ */
+    #process {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-purple);
+      border-bottom: 1px solid var(--border-purple);
+    }
+
+    .process-steps {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 0; margin-top: 60px; position: relative;
+    }
+    .process-steps::before {
+      content: ''; position: absolute; top: 28px; left: 12.5%; right: 12.5%;
+      height: 1px; background: linear-gradient(90deg, transparent, var(--border-purple), var(--border-purple), transparent);
+    }
+
+    .step { padding: 0 24px; text-align: center; }
+    .step-num {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--bg-card); border: 1px solid var(--border-purple);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 24px; font-family: var(--font-head); font-size: 1.1rem;
+      font-weight: 700; color: var(--gold); position: relative; z-index: 1;
+      transition: all var(--transition);
+    }
+    .step:hover .step-num {
+      background: var(--gold); color: #000; border-color: var(--gold);
+      box-shadow: 0 0 28px rgba(253,185,39,0.4);
+    }
+    .step h4 { font-family: var(--font-head); font-size: 1rem; font-weight: 600; margin-bottom: 10px; }
+    .step p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
+
+    /* ============================================================
+       BASKETBALL MINIGAME
+    ============================================================ */
+    #game {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-purple);
+      border-bottom: 1px solid var(--border-purple);
+    }
+
+    .game-header { text-align: center; margin-bottom: 40px; }
+
+    .game-wrapper {
+      max-width: 780px; margin: 0 auto;
+      background: var(--bg-card);
+      border: 1px solid var(--border-purple);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(253,185,39,0.06);
+    }
+
+    .game-hud {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 28px;
+      background: rgba(85,37,131,0.2);
+      border-bottom: 1px solid var(--border-purple);
+    }
+
+    .hud-stat { text-align: center; }
+    .hud-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
+    .hud-value { font-family: var(--font-head); font-size: 1.6rem; font-weight: 700; color: var(--gold); line-height: 1.1; }
+
+    .hud-divider { width: 1px; height: 40px; background: var(--border-purple); }
+
+    #gameCanvas {
+      display: block; width: 100%; cursor: crosshair;
+      background: linear-gradient(180deg, #1a1035 0%, #0e0920 60%, #1a0a0a 100%);
+    }
+
+    .game-controls {
+      padding: 18px 28px;
+      background: rgba(85,37,131,0.1);
+      border-top: 1px solid var(--border-purple);
+      display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    }
+    .game-hint { font-size: 0.8rem; color: var(--text-muted); }
+    .game-hint strong { color: var(--gold); }
+
+    #resetBtn {
+      padding: 9px 22px; background: var(--purple); color: #fff;
+      border: 1px solid var(--purple-light); border-radius: 100px;
+      font-family: var(--font-body); font-size: 0.8rem; font-weight: 600;
+      cursor: pointer; transition: all var(--transition); letter-spacing: 0.03em;
+    }
+    #resetBtn:hover { background: var(--purple-light); box-shadow: 0 6px 20px rgba(85,37,131,0.4); }
+
+    /* ============================================================
+       CONTACT
+    ============================================================ */
+    #contact { padding-bottom: 160px; }
+
+    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+
+    .contact-info h2 {
+      font-family: var(--font-head);
+      font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 700;
+      letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 20px;
+    }
+    .contact-info h2 span { color: var(--gold); }
+    .contact-info p { font-size: 1rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 40px; max-width: 400px; }
+
+    .contact-links { display: flex; flex-direction: column; gap: 16px; }
+    .contact-link {
+      display: flex; align-items: center; gap: 14px; padding: 16px 20px;
+      background: var(--bg-card); border: 1px solid var(--border-purple);
+      border-radius: var(--radius); transition: all var(--transition);
+      color: var(--text-muted); font-size: 0.9rem;
+    }
+    .contact-link:hover {
+      border-color: var(--gold); color: var(--text-primary);
+      background: var(--gold-dim); transform: translateX(4px);
+    }
+    .contact-link svg {
+      width: 18px; height: 18px; stroke: var(--gold); fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0;
+    }
+
+    .contact-form { display: flex; flex-direction: column; gap: 20px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
+    .form-group label {
+      font-size: 0.8rem; font-weight: 500; color: var(--text-muted);
+      letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      background: var(--bg-card); border: 1px solid var(--border-purple);
+      border-radius: var(--radius-sm); padding: 14px 16px;
+      color: var(--text-primary); font-family: var(--font-body);
+      font-size: 0.9rem; outline: none; resize: none; appearance: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .form-group select option { background: var(--bg-card); }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px var(--gold-dim);
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder { color: var(--text-faint); }
+
+    .form-submit { width: 100%; padding: 16px; justify-content: center; font-size: 0.95rem; }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 32px; right: 32px;
+      background: var(--bg-card); border: 1px solid var(--border-purple);
+      border-left: 3px solid var(--gold); border-radius: var(--radius-sm);
+      padding: 16px 20px; display: flex; align-items: center; gap: 12px;
+      font-size: 0.875rem; color: var(--text-primary); z-index: 1000;
+      transform: translateY(80px); opacity: 0; pointer-events: none;
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast svg {
+      width: 16px; height: 16px; stroke: var(--gold); fill: none;
+      stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0;
+    }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    footer {
+      border-top: 1px solid var(--border-purple);
+      padding: 40px; display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap; gap: 16px;
+    }
+    .footer-logo { font-family: var(--font-head); font-size: 1rem; font-weight: 600; letter-spacing: -0.02em; }
+    .footer-logo span { color: var(--gold); }
+    footer p { font-size: 0.8rem; color: var(--text-faint); }
+    .footer-links { display: flex; gap: 24px; list-style: none; }
+    .footer-links a { font-size: 0.8rem; color: var(--text-faint); transition: color var(--transition); }
+    .footer-links a:hover { color: var(--gold); }
+
+    /* ============================================================
+       ANIMATIONS
+    ============================================================ */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 900px) {
+      nav { padding: 0 24px; }
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .mobile-menu { display: flex; }
+      .about-grid, .contact-grid { grid-template-columns: 1fr; gap: 48px; }
+      .services-grid { grid-template-columns: 1fr 1fr; }
+      .process-steps { grid-template-columns: 1fr 1fr; gap: 40px; }
+      .process-steps::before { display: none; }
+      .form-row { grid-template-columns: 1fr; }
+      section { padding: 80px 24px; }
+      footer { flex-direction: column; text-align: center; }
+      .footer-links { justify-content: center; }
+    }
+    @media (max-width: 600px) {
+      .services-grid { grid-template-columns: 1fr; }
+      .process-steps { grid-template-columns: 1fr; }
+      .hero-actions { flex-direction: column; align-items: center; }
+      .about-stats { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================== NAV ===================== -->
+  <nav id="mainNav">
+    <a href="#hero" class="nav-logo">kenneth<span>.</span></a>
+    <ul class="nav-links">
+      <li><a href="#reel"     class="nav-link">Reel</a></li>
+      <li><a href="#about"    class="nav-link">About</a></li>
+      <li><a href="#services" class="nav-link">Services</a></li>
+      <li><a href="#game"     class="nav-link">🏀 Game</a></li>
+      <li><a href="#contact"  class="nav-cta">Get in Touch</a></li>
+    </ul>
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#reel"     class="mobile-link">Reel</a>
+    <a href="#about"    class="mobile-link">About</a>
+    <a href="#services" class="mobile-link">Services</a>
+    <a href="#game"     class="mobile-link">🏀 Game</a>
+    <a href="#contact"  class="mobile-link">Contact</a>
+  </div>
+
+  <!-- ===================== HERO ===================== -->
+  <section id="hero">
+    <div class="hero-grid"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="hero-badge">
+      <span class="dot"></span>
+      Available for freelance work
+    </div>
+
+    <h1 class="hero-name">
+      Kenneth<br /><span class="accent-word">Lee Komoto</span>
+    </h1>
+
+    <p class="hero-subtitle">
+      <strong>Motion Designer</strong> based in Los Angeles, CA —
+      crafting 2D &amp; 3D animation that communicates, captivates, and converts.
+    </p>
+
+    <div class="hero-actions">
+      <a href="#reel" class="btn btn-primary">
+        <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Watch Demo Reel
+      </a>
+      <a href="#contact" class="btn btn-ghost">
+        Let's Collaborate
+        <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+
+    <div class="scroll-indicator">
+      <div class="mouse"><div class="mouse-dot"></div></div>
+      <span>Scroll</span>
+    </div>
+  </section>
+
+  <!-- ===================== DEMO REEL ===================== -->
+  <section id="reel">
+    <div class="reel-wrapper reveal">
+      <div class="reel-placeholder" id="reelPlaceholder">
+        <div class="reel-waveform">
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <button class="play-btn" id="playBtn" aria-label="Play demo reel">
+          <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </button>
+        <span class="reel-label">Demo Reel 2024</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ABOUT ===================== -->
+  <section id="about">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-text reveal">
+          <span class="section-label">About Me</span>
+          <h2 class="section-heading">Turning ideas into motion</h2>
+          <p>Hey, I'm <strong>Kenny</strong> — a motion graphics designer with a <strong>BFA from the School of the Art Institute of Chicago</strong> (2017). After spending four years honing my craft in Chicago, I relocated to <strong>Los Angeles in 2021</strong> to push the boundaries of animation and motion graphics on the West Coast.</p>
+          <p>I help people and companies communicate and express their ideas in a <strong>fun, visual, and entertaining way</strong> — whether that's a slick brand video, an immersive 3D piece, or a punchy social campaign.</p>
+          <p>Every project starts with a conversation and ends with something that moves — literally.</p>
+          <div class="about-stats">
+            <div class="stat-box"><div class="stat-num">8+</div><div class="stat-label">Years of Experience</div></div>
+            <div class="stat-box"><div class="stat-num">50+</div><div class="stat-label">Projects Delivered</div></div>
+            <div class="stat-box"><div class="stat-num">2D/3D</div><div class="stat-label">Motion Specialties</div></div>
+            <div class="stat-box"><div class="stat-num">LA</div><div class="stat-label">Based in California</div></div>
+          </div>
+        </div>
+
+        <div class="skills-panel reveal">
+          <h3>Skills</h3>
+          <div class="skill-bar-wrap" data-skill="90">
+            <div class="skill-bar-header"><span>2D Motion Graphics</span><span>90%</span></div>
+            <div class="skill-bar"><div class="skill-fill"></div></div>
+          </div>
+          <div class="skill-bar-wrap" data-skill="82">
+            <div class="skill-bar-header"><span>3D Animation</span><span>82%</span></div>
+            <div class="skill-bar"><div class="skill-fill"></div></div>
+          </div>
+          <div class="skill-bar-wrap" data-skill="88">
+            <div class="skill-bar-header"><span>Visual Communication</span><span>88%</span></div>
+            <div class="skill-bar"><div class="skill-fill"></div></div>
+          </div>
+          <div class="skill-bar-wrap" data-skill="78">
+            <div class="skill-bar-header"><span>Brand Animation</span><span>78%</span></div>
+            <div class="skill-bar"><div class="skill-fill"></div></div>
+          </div>
+          <div class="skill-bar-wrap" data-skill="85">
+            <div class="skill-bar-header"><span>Compositing &amp; VFX</span><span>85%</span></div>
+            <div class="skill-bar"><div class="skill-fill"></div></div>
+          </div>
+          <h3 style="margin-top:40px;">Tools</h3>
+          <div class="tool-tags">
+            <span class="tag">After Effects</span><span class="tag">Cinema 4D</span>
+            <span class="tag">Adobe Premiere</span><span class="tag">Illustrator</span>
+            <span class="tag">Photoshop</span><span class="tag">DaVinci Resolve</span>
+            <span class="tag">Figma</span><span class="tag">Blender</span>
+          </div>
+          <div style="margin-top:36px;">
+            <a href="https://www.linkedin.com/in/kennethleedesign/" target="_blank" rel="noopener" class="btn btn-ghost" style="font-size:0.85rem;padding:10px 22px;">
+              <svg viewBox="0 0 24 24" style="width:15px;height:15px"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+              LinkedIn Profile
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SERVICES ===================== -->
+  <section id="services">
+    <div class="container">
+      <div class="services-header reveal">
+        <div>
+          <span class="section-label">What I Do</span>
+          <h2 class="section-heading">Services</h2>
+        </div>
+        <p class="section-desc" style="margin:0;">From concept to final render — I handle every frame with intention and craft.</p>
+      </div>
+      <div class="services-grid reveal">
+        <div class="service-card">
+          <div class="service-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+          <h3>2D Motion Graphics</h3>
+          <p>Kinetic typography, animated infographics, explainer videos, and social content that stops the scroll.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+          <h3>3D Animation</h3>
+          <p>Photorealistic product renders, abstract 3D visuals, and immersive motion pieces built in Cinema 4D and Blender.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon"><svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div>
+          <h3>Brand Videos</h3>
+          <p>Full-length commercial and brand storytelling from storyboard to color-graded final cut.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+          <h3>Social Content</h3>
+          <p>Platform-optimized animated assets for Instagram, TikTok, YouTube — designed for engagement.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+          <h3>VFX &amp; Compositing</h3>
+          <p>Seamless live-action integration, particle systems, and post-production magic that elevates real footage.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+          <h3>Creative Direction</h3>
+          <p>Strategic visual storytelling consulting — mood boards, style frames, and art direction for larger productions.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PROCESS ===================== -->
+  <section id="process">
+    <div class="container">
+      <div style="text-align:center;" class="reveal">
+        <span class="section-label">How I Work</span>
+        <h2 class="section-heading">My Process</h2>
+        <p class="section-desc" style="margin:0 auto;">A clear, collaborative workflow that keeps projects on track and on vision.</p>
+      </div>
+      <div class="process-steps">
+        <div class="step reveal"><div class="step-num">01</div><h4>Discovery</h4><p>We align on goals, audience, timeline, and creative direction before a single frame is made.</p></div>
+        <div class="step reveal"><div class="step-num">02</div><h4>Concept</h4><p>Style frames, mood boards, and animatics define the visual language and get your sign-off.</p></div>
+        <div class="step reveal"><div class="step-num">03</div><h4>Production</h4><p>Animation in full swing — progress updates keep you in the loop every step of the way.</p></div>
+        <div class="step reveal"><div class="step-num">04</div><h4>Delivery</h4><p>Final renders in any format you need, with revision rounds built in for total satisfaction.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== BASKETBALL MINIGAME ===================== -->
+  <section id="game">
+    <div class="container">
+      <div class="game-header reveal">
+        <span class="section-label">Mini Game</span>
+        <h2 class="section-heading">Free Throw Challenge 🏀</h2>
+        <p class="section-desc" style="margin:0 auto;">Take a break. Shoot some hoops. Click &amp; drag to aim, release to shoot.</p>
+      </div>
+
+      <div class="game-wrapper reveal">
+        <div class="game-hud">
+          <div class="hud-stat"><div class="hud-label">Score</div><div class="hud-value" id="hudScore">0</div></div>
+          <div class="hud-divider"></div>
+          <div class="hud-stat"><div class="hud-label">Attempts</div><div class="hud-value" id="hudAttempts">0</div></div>
+          <div class="hud-divider"></div>
+          <div class="hud-stat"><div class="hud-label">Streak</div><div class="hud-value" id="hudStreak">0</div></div>
+          <div class="hud-divider"></div>
+          <div class="hud-stat"><div class="hud-label">Best</div><div class="hud-value" id="hudBest">0</div></div>
+        </div>
+
+        <canvas id="gameCanvas" width="780" height="420"></canvas>
+
+        <div class="game-controls">
+          <span class="game-hint"><strong>Click &amp; drag</strong> from the ball to aim — release to shoot. Power = drag distance.</span>
+          <button id="resetBtn">↺ Reset</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CONTACT ===================== -->
+  <section id="contact">
+    <div class="container">
+      <div class="contact-grid">
+        <div class="contact-info reveal">
+          <span class="section-label">Get in Touch</span>
+          <h2>Let's make something <span>great</span> together.</h2>
+          <p>Have a project in mind? Drop me a message and I'll get back to you within 24 hours. Based in Los Angeles — available for both local and remote collaborations.</p>
+          <div class="contact-links">
+            <a href="https://www.linkedin.com/in/kennethleedesign/" target="_blank" rel="noopener" class="contact-link">
+              <svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+              linkedin.com/in/kennethleedesign
+            </a>
+            <a href="#" class="contact-link">
+              <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Los Angeles, California
+            </a>
+            <a href="#" class="contact-link">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Response within 24 hrs (PST)
+            </a>
+          </div>
+        </div>
+
+        <div class="reveal">
+          <form class="contact-form" id="contactForm">
+            <div class="form-row">
+              <div class="form-group"><label for="fname">First Name</label><input type="text" id="fname" placeholder="Jane" required /></div>
+              <div class="form-group"><label for="lname">Last Name</label><input type="text" id="lname" placeholder="Doe" required /></div>
+            </div>
+            <div class="form-group"><label for="email">Email</label><input type="email" id="email" placeholder="jane@company.com" required /></div>
+            <div class="form-group">
+              <label for="project">Project Type</label>
+              <select id="project" required>
+                <option value="" disabled selected>Select a service...</option>
+                <option value="2d">2D Motion Graphics</option>
+                <option value="3d">3D Animation</option>
+                <option value="brand">Brand Video</option>
+                <option value="social">Social Content</option>
+                <option value="vfx">VFX &amp; Compositing</option>
+                <option value="direction">Creative Direction</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="form-group"><label for="message">Message</label><textarea id="message" rows="5" placeholder="Tell me about your project, timeline, and budget..." required></textarea></div>
+            <button type="submit" class="btn btn-primary form-submit">
+              Send Message
+              <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer>
+    <span class="footer-logo">kenneth<span>.</span></span>
+    <p>© 2024 Kenneth Lee Komoto. All rights reserved.</p>
+    <ul class="footer-links">
+      <li><a href="#hero">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li><a href="https://www.linkedin.com/in/kennethleedesign/" target="_blank" rel="noopener">LinkedIn</a></li>
+    </ul>
+  </footer>
+
+  <div class="toast" id="toast">
+    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    Message sent! I'll be in touch soon.
+  </div>
+
+  <!-- ===================== JAVASCRIPT ===================== -->
+  <script>
+    /* ----------------------------------------------------------
+       NAV
+    ---------------------------------------------------------- */
+    const nav = document.getElementById('mainNav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 20);
+      updateActiveLink();
+    }, { passive: true });
+
+    function updateActiveLink() {
+      const sections = ['reel','about','services','game','process','contact'];
+      let current = '';
+      sections.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && window.scrollY >= el.offsetTop - 120) current = id;
+      });
+      document.querySelectorAll('.nav-link').forEach(a => {
+        a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+      });
+    }
+
+    /* ----------------------------------------------------------
+       HAMBURGER
+    ---------------------------------------------------------- */
+    const hamburger  = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    hamburger.addEventListener('click', () => {
+      const open = hamburger.classList.toggle('open');
+      mobileMenu.classList.toggle('open', open);
+      document.body.style.overflow = open ? 'hidden' : '';
+    });
+    document.querySelectorAll('.mobile-link').forEach(a => {
+      a.addEventListener('click', () => {
+        hamburger.classList.remove('open');
+        mobileMenu.classList.remove('open');
+        document.body.style.overflow = '';
+      });
+    });
+
+    /* ----------------------------------------------------------
+       SCROLL REVEAL
+    ---------------------------------------------------------- */
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          revealObserver.unobserve(entry.target);
+          animateSkillBars(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    function animateSkillBars(container) {
+      container.querySelectorAll('.skill-bar-wrap').forEach((wrap, i) => {
+        const pct  = wrap.getAttribute('data-skill');
+        const fill = wrap.querySelector('.skill-fill');
+        if (fill) setTimeout(() => { fill.style.width = pct + '%'; }, i * 120);
+      });
+    }
+
+    /* ----------------------------------------------------------
+       STAT COUNTERS
+    ---------------------------------------------------------- */
+    const statObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.querySelectorAll('.stat-num').forEach(el => {
+            const raw = el.textContent.trim();
+            const match = raw.match(/^(\d+)/);
+            if (match) {
+              const target = parseInt(match[1]);
+              const suffix = raw.replace(match[1], '');
+              let start = 0;
+              const inc = target / (1400 / 16);
+              const timer = setInterval(() => {
+                start = Math.min(start + inc, target);
+                el.textContent = Math.floor(start) + suffix;
+                if (start >= target) clearInterval(timer);
+              }, 16);
+            }
+          });
+          statObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.3 });
+    const statsEl = document.querySelector('.about-stats');
+    if (statsEl) statObserver.observe(statsEl);
+
+    /* ----------------------------------------------------------
+       DEMO REEL
+    ---------------------------------------------------------- */
+    document.getElementById('playBtn').addEventListener('click', () => {
+      const placeholder = document.getElementById('reelPlaceholder');
+      placeholder.innerHTML = `
+        <iframe
+          src="https://player.vimeo.com/video/612888773?autoplay=1&color=FDB927&title=0&byline=0&portrait=0"
+          style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;"
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowfullscreen
+          title="Kenneth Lee Komoto — Demo Reel">
+        </iframe>`;
+      placeholder.style.position = 'relative';
+    });
+
+    /* ----------------------------------------------------------
+       CONTACT FORM
+    ---------------------------------------------------------- */
+    const form  = document.getElementById('contactForm');
+    const toast = document.getElementById('toast');
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const btn = form.querySelector('.form-submit');
+      const orig = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<svg viewBox="0 0 24 24" style="animation:spin 0.8s linear infinite;width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Sending...`;
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.innerHTML = orig;
+        form.reset();
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 4000);
+      }, 1800);
+    });
+
+    /* ----------------------------------------------------------
+       SMOOTH SCROLL
+    ---------------------------------------------------------- */
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const target = document.querySelector(a.getAttribute('href'));
+        if (!target) return;
+        e.preventDefault();
+        window.scrollTo({ top: target.offsetTop - 72, behavior: 'smooth' });
+      });
+    });
+
+    const spinStyle = document.createElement('style');
+    spinStyle.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+    document.head.appendChild(spinStyle);
+
+    /* ----------------------------------------------------------
+       🏀 BASKETBALL FREE THROW MINIGAME
+    ---------------------------------------------------------- */
+    (() => {
+      const canvas  = document.getElementById('gameCanvas');
+      const ctx     = canvas.getContext('2d');
+
+      // ---- Layout constants (based on 780×420 canvas) ----
+      const W = canvas.width;
+      const H = canvas.height;
+
+      // Hoop position (right side, mid-height)
+      const HOOP_X      = W * 0.72;
+      const HOOP_Y      = H * 0.38;
+      const RIM_RADIUS  = 22;      // inner opening
+      const RIM_W       = 5;       // rim tube thickness
+      const BOARD_W     = 10;
+      const BOARD_H     = 100;
+      // Rim sits near the bottom of the backboard — BOARD_RIM_FRAC controls how far down
+      const BOARD_RIM_FRAC = 0.82;  // 0 = top of board, 1 = bottom of board
+      const POLE_X      = HOOP_X + RIM_RADIUS + 30;
+
+      // Ball start position (lower-left)
+      const BALL_START_X = W * 0.15;
+      const BALL_START_Y = H * 0.75;
+      const BALL_RADIUS  = 18;
+
+      // Physics
+      const GRAVITY   = 0.38;
+      const MAX_POWER = 22;
+
+      // Colors (Lakers)
+      const C_PURPLE = '#552583';
+      const C_GOLD   = '#FDB927';
+      const C_WHITE  = '#f4f0ff';
+      const C_FLOOR  = '#1a0e2e';
+
+      // State
+      let score = 0, attempts = 0, streak = 0, best = 0;
+      let ball, isDragging, dragOrigin, dragStart, particles, flashMsg, netWiggle;
+
+      function resetGame() {
+        ball = {
+          x: BALL_START_X, y: BALL_START_Y,
+          vx: 0, vy: 0,
+          radius: BALL_RADIUS,
+          inFlight: false,
+          scored: false,
+          missed: false,
+          trail: []
+        };
+        isDragging  = false;
+        dragOrigin  = null;
+        dragStart   = null;
+        particles   = [];
+        flashMsg    = null;
+        netWiggle   = 0;
+      }
+
+      resetGame();
+
+      // HUD refs
+      const hudScore    = document.getElementById('hudScore');
+      const hudAttempts = document.getElementById('hudAttempts');
+      const hudStreak   = document.getElementById('hudStreak');
+      const hudBest     = document.getElementById('hudBest');
+
+      function updateHUD() {
+        hudScore.textContent    = score;
+        hudAttempts.textContent = attempts;
+        hudStreak.textContent   = streak;
+        hudBest.textContent     = best;
+      }
+
+      /* ---------- WEB AUDIO ---------- */
+      let audioCtx = null;
+      function getAudio() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        return audioCtx;
+      }
+
+      function playSwish() {
+        try {
+          const ac = getAudio();
+          const buf = ac.createBuffer(1, ac.sampleRate * 0.25, ac.sampleRate);
+          const data = buf.getChannelData(0);
+          for (let i = 0; i < data.length; i++) {
+            data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ac.sampleRate * 0.06));
+          }
+          const src = ac.createBufferSource();
+          const gain = ac.createGain();
+          const filter = ac.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.value = 3000;
+          filter.Q.value = 0.8;
+          src.buffer = buf;
+          src.connect(filter); filter.connect(gain); gain.connect(ac.destination);
+          gain.gain.setValueAtTime(0.35, ac.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.25);
+          src.start();
+        } catch(e) {}
+      }
+
+      function playBounce() {
+        try {
+          const ac = getAudio();
+          const osc = ac.createOscillator();
+          const gain = ac.createGain();
+          osc.connect(gain); gain.connect(ac.destination);
+          osc.frequency.setValueAtTime(180, ac.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(60, ac.currentTime + 0.15);
+          gain.gain.setValueAtTime(0.25, ac.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.15);
+          osc.start(); osc.stop(ac.currentTime + 0.15);
+        } catch(e) {}
+      }
+
+      /* ---------- Particles ---------- */
+      function spawnParticles(x, y, color, count) {
+        for (let i = 0; i < count; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 2 + Math.random() * 5;
+          particles.push({
+            x, y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed - 3,
+            life: 1,
+            decay: 0.025 + Math.random() * 0.02,
+            radius: 3 + Math.random() * 4,
+            color
+          });
+        }
+      }
+
+      /* ---------- Aim arrow helper ---------- */
+      function getDragVector() {
+        if (!isDragging || !dragStart) return null;
+        return {
+          dx: dragStart.x - ball.x,
+          dy: dragStart.y - ball.y
+        };
+      }
+
+      /* ---------- Mouse / Touch input ---------- */
+      function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = W / rect.width;
+        const scaleY = H / rect.height;
+        const src = e.touches ? e.touches[0] : e;
+        return {
+          x: (src.clientX - rect.left) * scaleX,
+          y: (src.clientY - rect.top)  * scaleY
+        };
+      }
+
+      function onDown(e) {
+        if (ball.inFlight) return;
+        isDragging = true;
+        dragOrigin = getPos(e);  // fixed anchor — where the click started
+        dragStart  = getPos(e);  // current mouse position, updated on move
+        document.body.style.cursor = 'crosshair';
+        e.preventDefault();
+      }
+
+      function onMove(e) {
+        if (!isDragging) return;
+        dragStart = getPos(e);   // only dragStart moves; dragOrigin stays fixed
+        e.preventDefault();
+      }
+
+      function onUp(e) {
+        if (!isDragging) return;
+        isDragging = false;
+        document.body.style.cursor = '';
+        const origin  = dragOrigin;  // where the click started
+        const current = dragStart;   // where the mouse is now
+        dragOrigin = null;
+        dragStart  = null;
+
+        // Pull-back vector: drag from origin toward current, ball fires the opposite way
+        const dx = origin.x - current.x;
+        const dy = origin.y - current.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < 8) return; // too small a drag
+
+        const power = Math.min(dist / 10, MAX_POWER);
+        const nx = dx / dist;
+        const ny = dy / dist;
+
+        ball.vx = nx * power;
+        ball.vy = ny * power;
+        ball.inFlight = true;
+        attempts++;
+        ball.trail = [];
+        updateHUD();
+        e.preventDefault();
+      }
+
+      // mousedown on canvas only; move/up on document so drag works outside the canvas
+      canvas.addEventListener('mousedown',    onDown);
+      document.addEventListener('mousemove',  onMove);
+      document.addEventListener('mouseup',    onUp);
+      canvas.addEventListener('touchstart', onDown, { passive: false });
+      document.addEventListener('touchmove',  onMove, { passive: false });
+      document.addEventListener('touchend',   onUp,   { passive: false });
+
+      document.getElementById('resetBtn').addEventListener('click', () => {
+        score = 0; attempts = 0; streak = 0; best = 0;
+        updateHUD();
+        resetGame();
+      });
+
+      /* ---------- Collision: ball vs rim ---------- */
+      /* ---------- Collision: ball vs backboard ---------- */
+      function checkBackboardCollision() {
+        const leftFaceX = POLE_X - BOARD_W / 2;
+        const by        = HOOP_Y - BOARD_H * BOARD_RIM_FRAC;
+        const bBottom   = by + BOARD_H;
+
+        // Only deflect off the left face, and only when the ball is moving toward it (vx > 0).
+        // This prevents any double-trap with the rim — if the ball bounces off the rim
+        // and is moving LEFT (vx < 0), this function simply does nothing.
+        if (ball.vx <= 0) return;
+        if (ball.x + ball.radius < leftFaceX) return;    // not reached board yet
+        if (ball.y + ball.radius < by) return;            // above board
+        if (ball.y - ball.radius > bBottom) return;       // below board
+
+        ball.vx *= -0.55;
+        ball.x   = leftFaceX - ball.radius; // push flush against left face
+        playBounce();
+      }
+
+      function checkRimCollision() {
+        // Two rim endpoints (left and right of the opening)
+        const leftRim  = { x: HOOP_X - RIM_RADIUS, y: HOOP_Y };
+        const rightRim = { x: HOOP_X + RIM_RADIUS, y: HOOP_Y };
+
+        [leftRim, rightRim].forEach(rim => {
+          const dx = ball.x - rim.x;
+          const dy = ball.y - rim.y;
+          const dist = Math.sqrt(dx*dx + dy*dy);
+          const minDist = ball.radius + RIM_W;
+          if (dist < minDist && dist > 0) {
+            // Push ball away
+            const nx = dx / dist;
+            const ny = dy / dist;
+            ball.x = rim.x + nx * minDist;
+            ball.y = rim.y + ny * minDist;
+            // Reflect velocity
+            const dot = ball.vx*nx + ball.vy*ny;
+            ball.vx = (ball.vx - 2*dot*nx) * 0.45;
+            ball.vy = (ball.vy - 2*dot*ny) * 0.45;
+            // If ball stalls near the rim (very low energy), kick it downward so it never gets stuck
+            const speed = Math.sqrt(ball.vx*ball.vx + ball.vy*ball.vy);
+            if (speed < 1.5) { ball.vy = 2.5; ball.vx *= 0.3; }
+            playBounce();
+          }
+        });
+      }
+
+      /* ---------- Check scoring ---------- */
+      function checkScore() {
+        // Ball passes through the hoop opening going downward
+        if (
+          ball.vy > 0 &&
+          Math.abs(ball.x - HOOP_X) < RIM_RADIUS - ball.radius * 0.5 &&
+          Math.abs(ball.y - HOOP_Y) < 12 &&
+          !ball.scored
+        ) {
+          ball.scored = true;
+          score++;
+          streak++;
+          if (streak > best) best = streak;
+          const msg = streak >= 3 ? `🔥 ${streak}× STREAK!` : streak === 2 ? '💛 NICE!' : '✓ SWISH!';
+          flashMsg = { text: msg, life: 1.0, x: HOOP_X, y: HOOP_Y - 40 };
+          spawnParticles(HOOP_X, HOOP_Y, C_GOLD, 28);
+          spawnParticles(HOOP_X, HOOP_Y, C_PURPLE, 12);
+          netWiggle = 12;
+          playSwish();
+          updateHUD();
+          setTimeout(() => resetGame(), 1200);
+          return;
+        }
+
+        // Ball out of bounds → miss
+        if (
+          ball.x < -50 || ball.x > W + 50 ||
+          ball.y > H + 50
+        ) {
+          if (!ball.scored) {
+            streak = 0;
+            flashMsg = { text: 'Miss...', life: 1.0, x: W / 2, y: H / 2, miss: true };
+            updateHUD();
+          }
+          setTimeout(() => resetGame(), 800);
+        }
+      }
+
+      /* ---------- Draw helpers ---------- */
+      function drawCourt() {
+        // Floor
+        ctx.fillStyle = C_FLOOR;
+        ctx.fillRect(0, H * 0.88, W, H * 0.12);
+
+        // Court line
+        ctx.strokeStyle = 'rgba(253,185,39,0.15)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, H * 0.88);
+        ctx.lineTo(W, H * 0.88);
+        ctx.stroke();
+
+        // Free throw lane lines (decorative)
+        ctx.strokeStyle = 'rgba(253,185,39,0.08)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(0, H * 0.88);
+        ctx.lineTo(HOOP_X - RIM_RADIUS - 10, H * 0.88);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(HOOP_X, H * 0.88, 60, Math.PI, 0, true);
+        ctx.stroke();
+      }
+
+      function drawPole() {
+        // Pole
+        const gradient = ctx.createLinearGradient(POLE_X - 5, 0, POLE_X + 5, 0);
+        gradient.addColorStop(0, '#2a1a40');
+        gradient.addColorStop(1, '#3d2860');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(POLE_X - 5, HOOP_Y - 10, 10, H * 0.88 - HOOP_Y + 10);
+      }
+
+      function drawBackboard() {
+        const bx = POLE_X - BOARD_W / 2;
+        const by = HOOP_Y - BOARD_H * BOARD_RIM_FRAC;
+
+        // Board body
+        ctx.fillStyle = '#1e1040';
+        ctx.strokeStyle = 'rgba(253,185,39,0.4)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(bx, by, BOARD_W, BOARD_H, 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Horizontal support arm from backboard left face to right rim (realistic look)
+        ctx.strokeStyle = 'rgba(253,185,39,0.35)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(POLE_X - BOARD_W / 2, HOOP_Y);
+        ctx.lineTo(HOOP_X + RIM_RADIUS + 2, HOOP_Y);
+        ctx.stroke();
+      }
+
+      function drawHoop() {
+        // Rim shadow
+        ctx.shadowColor = 'rgba(253,185,39,0.3)';
+        ctx.shadowBlur = 12;
+
+        ctx.strokeStyle = C_GOLD;
+        ctx.lineWidth = RIM_W;
+        ctx.beginPath();
+        ctx.moveTo(HOOP_X - RIM_RADIUS, HOOP_Y);
+        ctx.lineTo(HOOP_X + RIM_RADIUS, HOOP_Y);
+        ctx.stroke();
+
+        // Rim end caps
+        [HOOP_X - RIM_RADIUS, HOOP_X + RIM_RADIUS].forEach(x => {
+          ctx.beginPath();
+          ctx.arc(x, HOOP_Y, RIM_W / 2, 0, Math.PI * 2);
+          ctx.fillStyle = C_GOLD;
+          ctx.fill();
+        });
+
+        ctx.shadowBlur = 0;
+      }
+
+      function drawNet() {
+        const netSegs = 6;
+        const netH    = 36;
+        const wiggle  = netWiggle;
+
+        ctx.strokeStyle = 'rgba(244,240,255,0.55)';
+        ctx.lineWidth   = 1.2;
+
+        // Vertical strands
+        for (let i = 0; i <= netSegs; i++) {
+          const t  = i / netSegs;
+          const tx = HOOP_X - RIM_RADIUS + t * RIM_RADIUS * 2;
+          const sway = Math.sin((t * 3 + Date.now() / 300)) * wiggle * (1 - t * 0.3);
+          ctx.beginPath();
+          ctx.moveTo(tx, HOOP_Y + RIM_W);
+          ctx.quadraticCurveTo(
+            tx + sway, HOOP_Y + netH * 0.5,
+            HOOP_X + (t - 0.5) * (RIM_RADIUS * 0.7), HOOP_Y + netH
+          );
+          ctx.stroke();
+        }
+
+        // Horizontal cross-strands
+        for (let j = 1; j <= 3; j++) {
+          const prog = j / 4;
+          const yy   = HOOP_Y + netH * prog;
+          const halfW = RIM_RADIUS * (1 - prog * 0.25);
+          ctx.beginPath();
+          ctx.moveTo(HOOP_X - halfW, yy);
+          ctx.lineTo(HOOP_X + halfW, yy);
+          ctx.stroke();
+        }
+
+        netWiggle *= 0.88;
+      }
+
+      function drawBall() {
+        const bx = ball.x, by = ball.y, br = ball.radius;
+
+        // Trail
+        ball.trail.forEach((p, i) => {
+          const alpha = (i / ball.trail.length) * 0.35;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, br * (i / ball.trail.length) * 0.6, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(253,185,39,${alpha})`;
+          ctx.fill();
+        });
+
+        // Ball shadow on floor
+        const shadowY = H * 0.88;
+        const shadowScale = Math.max(0.2, 1 - (shadowY - by) / 400);
+        ctx.save();
+        ctx.translate(bx, shadowY);
+        ctx.scale(shadowScale, 0.18 * shadowScale);
+        ctx.beginPath();
+        ctx.arc(0, 0, br, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,0,0,0.45)';
+        ctx.fill();
+        ctx.restore();
+
+        // Ball body gradient
+        const grad = ctx.createRadialGradient(bx - br * 0.35, by - br * 0.35, br * 0.05, bx, by, br);
+        grad.addColorStop(0, '#ff8c00');
+        grad.addColorStop(0.5, '#e05a00');
+        grad.addColorStop(1, '#7a2500');
+
+        ctx.shadowColor = 'rgba(200,100,0,0.4)';
+        ctx.shadowBlur = 16;
+        ctx.beginPath();
+        ctx.arc(bx, by, br, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // Ball seam lines
+        ctx.save();
+        ctx.clip();
+        ctx.strokeStyle = 'rgba(0,0,0,0.4)';
+        ctx.lineWidth = 1.8;
+        // Curved seam 1
+        ctx.beginPath();
+        ctx.moveTo(bx - br, by);
+        ctx.bezierCurveTo(bx - br * 0.5, by - br * 0.7, bx + br * 0.5, by - br * 0.7, bx + br, by);
+        ctx.stroke();
+        // Curved seam 2
+        ctx.beginPath();
+        ctx.moveTo(bx - br, by);
+        ctx.bezierCurveTo(bx - br * 0.5, by + br * 0.7, bx + br * 0.5, by + br * 0.7, bx + br, by);
+        ctx.stroke();
+        ctx.restore();
+
+        // Highlight
+        ctx.beginPath();
+        ctx.arc(bx - br * 0.3, by - br * 0.3, br * 0.22, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,200,100,0.45)';
+        ctx.fill();
+      }
+
+      function drawAimGuide() {
+        if (!isDragging || !dragOrigin || !dragStart || ball.inFlight) return;
+        // Direction is from current mouse back toward the click origin (slingshot pull-back)
+        const dx = dragOrigin.x - dragStart.x;
+        const dy = dragOrigin.y - dragStart.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < 5) return;
+
+        const power  = Math.min(dist / 10, MAX_POWER);
+        const nx     = dx / dist, ny = dy / dist;
+        const vx     = nx * power, vy = ny * power;
+
+        // Dotted arc preview
+        ctx.setLineDash([5, 8]);
+        ctx.strokeStyle = 'rgba(253,185,39,0.5)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+
+        let px = ball.x, py = ball.y, pvx = vx, pvy = vy;
+        ctx.moveTo(px, py);
+        for (let t = 0; t < 35; t++) {
+          px += pvx; py += pvy; pvy += GRAVITY;
+          if (t === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Power bar
+        const barW = 90, barH = 7;
+        const barX = ball.x - barW / 2;
+        const barY = ball.y + ball.radius + 14;
+        const pct  = power / MAX_POWER;
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.beginPath();
+        ctx.roundRect(barX, barY, barW, barH, 4);
+        ctx.fill();
+
+        const barColor = pct > 0.8 ? '#ff4444' : pct > 0.5 ? C_GOLD : '#66ff99';
+        ctx.fillStyle = barColor;
+        ctx.beginPath();
+        ctx.roundRect(barX, barY, barW * pct, barH, 4);
+        ctx.fill();
+
+        // Arrow: drawn from dragOrigin toward dragStart (shows the pull direction)
+        const arrowLen = Math.min(dist * 0.45, 55);
+        const ex = dragOrigin.x - nx * arrowLen;
+        const ey = dragOrigin.y - ny * arrowLen;
+        ctx.strokeStyle = 'rgba(253,185,39,0.8)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(dragOrigin.x, dragOrigin.y);
+        ctx.lineTo(ex, ey);
+        ctx.stroke();
+        // Arrowhead
+        const angle = Math.atan2(ny, nx);
+        ctx.beginPath();
+        ctx.moveTo(ex, ey);
+        ctx.lineTo(ex - 10*Math.cos(angle-0.4), ey - 10*Math.sin(angle-0.4));
+        ctx.lineTo(ex - 10*Math.cos(angle+0.4), ey - 10*Math.sin(angle+0.4));
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(253,185,39,0.9)';
+        ctx.fill();
+      }
+
+      function drawParticles() {
+        particles.forEach(p => {
+          ctx.save();
+          ctx.globalAlpha = p.life;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.fill();
+          ctx.restore();
+        });
+      }
+
+      function drawFlashMsg() {
+        if (!flashMsg || flashMsg.life <= 0) return;
+        ctx.save();
+        ctx.globalAlpha = Math.min(flashMsg.life * 2, 1);
+        ctx.font = `bold ${flashMsg.miss ? 22 : 28}px 'Space Grotesk', sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.shadowColor = flashMsg.miss ? 'rgba(255,80,80,0.8)' : 'rgba(253,185,39,0.9)';
+        ctx.shadowBlur = 20;
+        ctx.fillStyle = flashMsg.miss ? '#ff6666' : C_GOLD;
+        ctx.fillText(flashMsg.text, flashMsg.x, flashMsg.y - (1 - flashMsg.life) * 30);
+        ctx.restore();
+      }
+
+      function drawIdleHint() {
+        if (ball.inFlight || isDragging) return;
+        const alpha = 0.5 + 0.5 * Math.sin(Date.now() / 600);
+        ctx.save();
+        ctx.globalAlpha = alpha * 0.7;
+        ctx.font = '14px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillStyle = C_GOLD;
+        ctx.fillText('← drag to shoot', ball.x, ball.y - ball.radius - 14);
+        ctx.restore();
+      }
+
+      /* ---------- Game loop ---------- */
+      function update() {
+        if (ball.inFlight) {
+          // Trail
+          ball.trail.push({ x: ball.x, y: ball.y });
+          if (ball.trail.length > 14) ball.trail.shift();
+
+          ball.x  += ball.vx;
+          ball.y  += ball.vy;
+          ball.vy += GRAVITY;
+
+          checkBackboardCollision();
+          checkRimCollision();
+          checkScore();
+        }
+
+        // Update particles
+        particles.forEach(p => {
+          p.x += p.vx; p.y += p.vy;
+          p.vy += 0.15;
+          p.life -= p.decay;
+        });
+        particles = particles.filter(p => p.life > 0);
+
+        // Update flash message
+        if (flashMsg) flashMsg.life -= 0.018;
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, W, H);
+
+        drawCourt();
+        drawPole();
+        drawBackboard();
+        drawNet();
+        drawHoop();
+        drawBall();
+        drawAimGuide();
+        drawParticles();
+        drawFlashMsg();
+        drawIdleHint();
+      }
+
+      function loop() {
+        update();
+        draw();
+        requestAnimationFrame(loop);
+      }
+
+      loop();
+    })();
+  </script>
+</body>
+</html>
