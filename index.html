@@ -1362,7 +1362,7 @@
         // This rejects balls that arc over the top or sneak in from behind —
         // they'll have prevX already at or past the face, so we skip.
         const prevX = ball.x - ball.vx;
-        if (prevX + ball.radius >= leftFaceX) return;  // wasn't approaching from the left
+        if (prevX >= leftFaceX) return;  // ball centre was already at/past the face — not a left-side approach
 
         if (ball.x + ball.radius < leftFaceX) return;  // hasn't reached the face yet
         if (ball.y + ball.radius < by) return;          // above board
