@@ -564,13 +564,14 @@
     .game-hint { font-size: 0.8rem; color: var(--text-muted); }
     .game-hint strong { color: var(--gold); }
 
-    #resetBtn {
+    #resetBtn, #muteBtn {
       padding: 9px 22px; background: var(--purple); color: #fff;
       border: 1px solid var(--purple-light); border-radius: 100px;
       font-family: var(--font-body); font-size: 0.8rem; font-weight: 600;
       cursor: pointer; transition: all var(--transition); letter-spacing: 0.03em;
     }
-    #resetBtn:hover { background: var(--purple-light); box-shadow: 0 6px 20px rgba(85,37,131,0.4); }
+    #resetBtn:hover, #muteBtn:hover { background: var(--purple-light); box-shadow: 0 6px 20px rgba(85,37,131,0.4); }
+    .game-btn-group { display: flex; gap: 10px; align-items: center; }
 
     /* ============================================================
        CONTACT
@@ -917,8 +918,11 @@
         <canvas id="gameCanvas" width="780" height="420"></canvas>
 
         <div class="game-controls">
-          <span class="game-hint"><strong>Click &amp; drag</strong> from the ball to aim — release to shoot. Power = drag distance.</span>
-          <button id="resetBtn">↺ Reset</button>
+          <span class="game-hint"><strong>Click &amp; drag</strong> anywhere to aim — release to shoot. Power = drag distance.</span>
+          <div class="game-btn-group">
+            <button id="muteBtn">🔊 Sound</button>
+            <button id="resetBtn">↺ Reset</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1159,7 +1163,7 @@
       const BOARD_H     = 100;
       // Rim sits near the bottom of the backboard — BOARD_RIM_FRAC controls how far down
       const BOARD_RIM_FRAC = 0.82;  // 0 = top of board, 1 = bottom of board
-      const POLE_X      = HOOP_X + RIM_RADIUS + 30;
+      const POLE_X      = HOOP_X + RIM_RADIUS + 20;
 
       // Ball start position (lower-left)
       const BALL_START_X = W * 0.15;
@@ -1215,12 +1219,20 @@
 
       /* ---------- WEB AUDIO ---------- */
       let audioCtx = null;
+      let isMuted = false;
+      const muteBtn = document.getElementById('muteBtn');
+      muteBtn.addEventListener('click', () => {
+        isMuted = !isMuted;
+        muteBtn.textContent = isMuted ? '🔇 Muted' : '🔊 Sound';
+      });
+
       function getAudio() {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         return audioCtx;
       }
 
       function playSwish() {
+        if (isMuted) return;
         try {
           const ac = getAudio();
           const buf = ac.createBuffer(1, ac.sampleRate * 0.25, ac.sampleRate);
@@ -1243,6 +1255,7 @@
       }
 
       function playBounce() {
+        if (isMuted) return;
         try {
           const ac = getAudio();
           const osc = ac.createOscillator();
@@ -1273,14 +1286,6 @@
         }
       }
 
-      /* ---------- Aim arrow helper ---------- */
-      function getDragVector() {
-        if (!isDragging || !dragStart) return null;
-        return {
-          dx: dragStart.x - ball.x,
-          dy: dragStart.y - ball.y
-        };
-      }
 
       /* ---------- Mouse / Touch input ---------- */
       function getPos(e) {
@@ -1351,7 +1356,50 @@
         resetGame();
       });
 
-      /* ---------- Collision: ball vs rim ---------- */
+      /* ---------- Collision: ball vs support arm ---------- */
+      // The arm is a solid horizontal segment at y = HOOP_Y between the right rim and backboard.
+      // Giving it real physics eliminates the gap-sticking problem entirely.
+      function checkArmCollision() {
+        const armX1 = POLE_X - BOARD_W / 2 - 15; // left end (short stub, 15px from backboard)
+        const armX2 = POLE_X - BOARD_W / 2;      // right end (backboard left face)
+        const armY  = HOOP_Y;
+
+        // Ball must be horizontally within the arm span
+        if (ball.x + ball.radius < armX1) return;
+        if (ball.x - ball.radius > armX2) return;
+
+        const prevY = ball.y - ball.vy;
+
+        // Approaching from above → bounce off top surface
+        if (prevY + ball.radius <= armY && ball.y + ball.radius > armY) {
+          ball.vy = -Math.abs(ball.vy) * 0.45;
+          ball.y  = armY - ball.radius;
+          playBounce();
+        }
+        // Approaching from below → bounce off bottom surface
+        else if (prevY - ball.radius >= armY && ball.y - ball.radius < armY) {
+          ball.vy = Math.abs(ball.vy) * 0.45;
+          ball.y  = armY + ball.radius;
+          playBounce();
+        }
+
+        // Low-energy escape: if ball is barely moving near the arm, nudge it
+        // sideways only (never teleport below HOOP_Y) so checkScore still works.
+        const speed = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
+        const nearArm = Math.abs(ball.y - armY) < ball.radius * 2;
+        if (nearArm && speed < 1.5) {
+          ball.stuckFrames = (ball.stuckFrames || 0) + 1;
+          if (ball.stuckFrames > 4) {
+            ball.vx = (ball.x < armX1 + 7) ? -2.5 : 2.5; // nudge away from arm centre
+            ball.vy = -0.5;                                 // tiny upward bump to break symmetry
+            ball.stuckFrames = 0;
+          }
+        } else {
+          ball.stuckFrames = 0;
+        }
+
+      }
+
       /* ---------- Collision: ball vs backboard ---------- */
       function checkBackboardCollision() {
         const leftFaceX = POLE_X - BOARD_W / 2;
@@ -1374,16 +1422,22 @@
       }
 
       function checkRimCollision() {
+        // Skip rim collisions during cooldown (ball was just nudged off a stuck rim —
+        // give it time to fall through HOOP_Y before re-enabling collisions).
+        if (ball.rimCooldown > 0) { ball.rimCooldown--; return; }
+
         // Two rim endpoints (left and right of the opening)
         const leftRim  = { x: HOOP_X - RIM_RADIUS, y: HOOP_Y };
         const rightRim = { x: HOOP_X + RIM_RADIUS, y: HOOP_Y };
 
+        let hitRim = false;
         [leftRim, rightRim].forEach(rim => {
           const dx = ball.x - rim.x;
           const dy = ball.y - rim.y;
           const dist = Math.sqrt(dx*dx + dy*dy);
           const minDist = ball.radius + RIM_W;
           if (dist < minDist && dist > 0) {
+            hitRim = true;
             // Push ball away
             const nx = dx / dist;
             const ny = dy / dist;
@@ -1393,43 +1447,63 @@
             const dot = ball.vx*nx + ball.vy*ny;
             ball.vx = (ball.vx - 2*dot*nx) * 0.45;
             ball.vy = (ball.vy - 2*dot*ny) * 0.45;
-            // If ball stalls near the rim (very low energy), kick it downward so it never gets stuck
-            const speed = Math.sqrt(ball.vx*ball.vx + ball.vy*ball.vy);
-            if (speed < 1.5) { ball.vy = 2.5; ball.vx *= 0.3; }
             playBounce();
           }
         });
+
+        // Stuck-on-rim escape: after ~4 frames of near-zero energy on a rim,
+        // nudge the ball inward and start a cooldown so it can't re-enter the
+        // collision zone before crossing HOOP_Y. checkScore decides score or miss.
+        if (hitRim) {
+          const speed = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
+          if (speed < 1.5) {
+            ball.stuckRimFrames = (ball.stuckRimFrames || 0) + 1;
+            if (ball.stuckRimFrames > 4) {
+              ball.stuckRimFrames = 0;
+              // Nudge toward hoop center: left rim → push right, right rim → push left
+              const onLeft = ball.x < HOOP_X;
+              const nudgeDir = onLeft ? 1 : -1;
+              ball.vx = nudgeDir * 1.5;
+              ball.vy = 0.5;
+              ball.rimCooldown = 20; // ~0.33s — enough for ball to cross HOOP_Y freely
+            }
+          } else {
+            ball.stuckRimFrames = 0;
+          }
+        } else {
+          ball.stuckRimFrames = 0;
+        }
       }
 
       /* ---------- Check scoring ---------- */
-      function checkScore() {
-        // Ball passes through the hoop opening going downward
-        if (
-          ball.vy > 0 &&
-          Math.abs(ball.x - HOOP_X) < RIM_RADIUS - ball.radius * 0.5 &&
-          Math.abs(ball.y - HOOP_Y) < 12 &&
-          !ball.scored
-        ) {
-          ball.scored = true;
-          score++;
-          streak++;
-          if (streak > best) best = streak;
-          const msg = streak >= 3 ? `🔥 ${streak}× STREAK!` : streak === 2 ? '💛 NICE!' : '✓ SWISH!';
-          flashMsg = { text: msg, life: 1.0, x: HOOP_X, y: HOOP_Y - 40 };
-          spawnParticles(HOOP_X, HOOP_Y, C_GOLD, 28);
-          spawnParticles(HOOP_X, HOOP_Y, C_PURPLE, 12);
-          netWiggle = 12;
-          playSwish();
-          updateHUD();
-          setTimeout(() => resetGame(), 1200);
-          return;
+      function checkScore(prevX, prevY) {
+        // Swept crossing: did the ball centre cross HOOP_Y downward this frame?
+        // Uses true pre-frame positions (saved before any collision runs) so that
+        // arm/rim collisions can't push ball.y back above the plane and cause a false miss.
+        const crossedDownward = prevY < HOOP_Y && ball.y >= HOOP_Y;
+        if (crossedDownward && !ball.scored) {
+          // Interpolate the exact x at the HOOP_Y crossing moment
+          const t      = (HOOP_Y - prevY) / (ball.y - prevY);
+          const crossX = prevX + t * (ball.x - prevX);
+          if (Math.abs(crossX - HOOP_X) < RIM_RADIUS - ball.radius * 0.4) {
+            ball.scored = true;
+            score++;
+            streak++;
+            if (streak > best) best = streak;
+            const msg = streak >= 3 ? `🔥 ${streak}× STREAK!` : streak === 2 ? '💛 NICE!' : '✓ SWISH!';
+            flashMsg = { text: msg, life: 1.0, x: HOOP_X, y: HOOP_Y - 40 };
+            spawnParticles(HOOP_X, HOOP_Y, C_GOLD, 28);
+            spawnParticles(HOOP_X, HOOP_Y, C_PURPLE, 12);
+            netWiggle = 12;
+            playSwish();
+            updateHUD();
+            setTimeout(() => resetGame(), 1200);
+            return;
+          }
         }
 
         // Ball out of bounds → miss
-        if (
-          ball.x < -50 || ball.x > W + 50 ||
-          ball.y > H + 50
-        ) {
+        if (ball.x < -50 || ball.x > W + 50 || ball.y > H + 50) {
           if (!ball.scored) {
             streak = 0;
             flashMsg = { text: 'Miss...', life: 1.0, x: W / 2, y: H / 2, miss: true };
@@ -1492,7 +1566,7 @@
         ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.moveTo(POLE_X - BOARD_W / 2, HOOP_Y);
-        ctx.lineTo(HOOP_X + RIM_RADIUS + 2, HOOP_Y);
+        ctx.lineTo(POLE_X - BOARD_W / 2 - 15, HOOP_Y);
         ctx.stroke();
       }
 
@@ -1617,24 +1691,23 @@
         ctx.fill();
       }
 
+
       function drawAimGuide() {
         if (!isDragging || !dragOrigin || !dragStart || ball.inFlight) return;
-        // Direction is from current mouse back toward the click origin (slingshot pull-back)
         const dx = dragOrigin.x - dragStart.x;
         const dy = dragOrigin.y - dragStart.y;
         const dist = Math.sqrt(dx*dx + dy*dy);
         if (dist < 5) return;
 
-        const power  = Math.min(dist / 10, MAX_POWER);
-        const nx     = dx / dist, ny = dy / dist;
-        const vx     = nx * power, vy = ny * power;
+        const power = Math.min(dist / 10, MAX_POWER);
+        const nx    = dx / dist, ny = dy / dist;
+        const vx    = nx * power, vy = ny * power;
 
         // Dotted arc preview
         ctx.setLineDash([5, 8]);
         ctx.strokeStyle = 'rgba(253,185,39,0.5)';
         ctx.lineWidth = 1.5;
         ctx.beginPath();
-
         let px = ball.x, py = ball.y, pvx = vx, pvy = vy;
         ctx.moveTo(px, py);
         for (let t = 0; t < 35; t++) {
@@ -1653,31 +1726,10 @@
         ctx.beginPath();
         ctx.roundRect(barX, barY, barW, barH, 4);
         ctx.fill();
-
         const barColor = pct > 0.8 ? '#ff4444' : pct > 0.5 ? C_GOLD : '#66ff99';
         ctx.fillStyle = barColor;
         ctx.beginPath();
         ctx.roundRect(barX, barY, barW * pct, barH, 4);
-        ctx.fill();
-
-        // Arrow: drawn from dragOrigin toward dragStart (shows the pull direction)
-        const arrowLen = Math.min(dist * 0.45, 55);
-        const ex = dragOrigin.x - nx * arrowLen;
-        const ey = dragOrigin.y - ny * arrowLen;
-        ctx.strokeStyle = 'rgba(253,185,39,0.8)';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(dragOrigin.x, dragOrigin.y);
-        ctx.lineTo(ex, ey);
-        ctx.stroke();
-        // Arrowhead
-        const angle = Math.atan2(ny, nx);
-        ctx.beginPath();
-        ctx.moveTo(ex, ey);
-        ctx.lineTo(ex - 10*Math.cos(angle-0.4), ey - 10*Math.sin(angle-0.4));
-        ctx.lineTo(ex - 10*Math.cos(angle+0.4), ey - 10*Math.sin(angle+0.4));
-        ctx.closePath();
-        ctx.fillStyle = 'rgba(253,185,39,0.9)';
         ctx.fill();
       }
 
@@ -1725,13 +1777,17 @@
           ball.trail.push({ x: ball.x, y: ball.y });
           if (ball.trail.length > 14) ball.trail.shift();
 
+          const _prevX = ball.x;
+          const _prevY = ball.y;
+
           ball.x  += ball.vx;
           ball.y  += ball.vy;
           ball.vy += GRAVITY;
 
+          checkScore(_prevX, _prevY);   // score first — before any collision can push ball.y back up
+          checkArmCollision();
           checkBackboardCollision();
           checkRimCollision();
-          checkScore();
         }
 
         // Update particles
