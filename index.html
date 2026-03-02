@@ -1358,13 +1358,15 @@
         const by        = HOOP_Y - BOARD_H * BOARD_RIM_FRAC;
         const bBottom   = by + BOARD_H;
 
-        // Only deflect off the left face, and only when the ball is moving toward it (vx > 0).
-        // This prevents any double-trap with the rim — if the ball bounces off the rim
-        // and is moving LEFT (vx < 0), this function simply does nothing.
-        if (ball.vx <= 0) return;
-        if (ball.x + ball.radius < leftFaceX) return;    // not reached board yet
-        if (ball.y + ball.radius < by) return;            // above board
-        if (ball.y - ball.radius > bBottom) return;       // below board
+        // Only fire if the ball was to the LEFT of the face in the previous frame.
+        // This rejects balls that arc over the top or sneak in from behind —
+        // they'll have prevX already at or past the face, so we skip.
+        const prevX = ball.x - ball.vx;
+        if (prevX + ball.radius >= leftFaceX) return;  // wasn't approaching from the left
+
+        if (ball.x + ball.radius < leftFaceX) return;  // hasn't reached the face yet
+        if (ball.y + ball.radius < by) return;          // above board
+        if (ball.y - ball.radius > bBottom) return;     // below board
 
         ball.vx *= -0.55;
         ball.x   = leftFaceX - ball.radius; // push flush against left face
