@@ -1372,13 +1372,13 @@
 
         // Approaching from above → bounce off top surface
         if (prevY + ball.radius <= armY && ball.y + ball.radius > armY) {
-          ball.vy = -Math.abs(ball.vy) * 0.45;
+          ball.vy = -Math.abs(ball.vy) * 0.7;
           ball.y  = armY - ball.radius;
           playBounce();
         }
         // Approaching from below → bounce off bottom surface
         else if (prevY - ball.radius >= armY && ball.y - ball.radius < armY) {
-          ball.vy = Math.abs(ball.vy) * 0.45;
+          ball.vy = Math.abs(ball.vy) * 0.7;
           ball.y  = armY + ball.radius;
           playBounce();
         }
@@ -1416,7 +1416,7 @@
         if (ball.y + ball.radius < by) return;          // above board
         if (ball.y - ball.radius > bBottom) return;     // below board
 
-        ball.vx *= -0.55;
+        ball.vx *= -0.75;
         ball.x   = leftFaceX - ball.radius; // push flush against left face
         playBounce();
       }
@@ -1445,8 +1445,8 @@
             ball.y = rim.y + ny * minDist;
             // Reflect velocity
             const dot = ball.vx*nx + ball.vy*ny;
-            ball.vx = (ball.vx - 2*dot*nx) * 0.45;
-            ball.vy = (ball.vy - 2*dot*ny) * 0.45;
+            ball.vx = (ball.vx - 2*dot*nx) * 0.65;
+            ball.vy = (ball.vy - 2*dot*ny) * 0.65;
             playBounce();
           }
         });
@@ -1703,18 +1703,21 @@
         const nx    = dx / dist, ny = dy / dist;
         const vx    = nx * power, vy = ny * power;
 
-        // Dotted arc preview
-        ctx.setLineDash([5, 8]);
-        ctx.strokeStyle = 'rgba(253,185,39,0.5)';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
+        // Dotted arc preview — short with fade so aim isn't fully given away
+        const ARC_STEPS = 18;
         let px = ball.x, py = ball.y, pvx = vx, pvy = vy;
-        ctx.moveTo(px, py);
-        for (let t = 0; t < 35; t++) {
+        for (let t = 0; t < ARC_STEPS; t++) {
+          const prevPx = px, prevPy = py;
           px += pvx; py += pvy; pvy += GRAVITY;
-          if (t === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+          const alpha = 0.55 * (1 - t / ARC_STEPS);
+          ctx.beginPath();
+          ctx.setLineDash([4, 7]);
+          ctx.strokeStyle = `rgba(253,185,39,${alpha.toFixed(2)})`;
+          ctx.lineWidth = 1.5;
+          ctx.moveTo(prevPx, prevPy);
+          ctx.lineTo(px, py);
+          ctx.stroke();
         }
-        ctx.stroke();
         ctx.setLineDash([]);
 
         // Power bar
